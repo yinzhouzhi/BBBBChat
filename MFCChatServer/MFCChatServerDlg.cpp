@@ -7,7 +7,7 @@
 #include "MFCChatServer.h"
 #include "MFCChatServerDlg.h"
 #include "afxdialogex.h"
-
+#include"CServerSocket.h"
 #ifdef _DEBUG
 #define new DEBUG_NEW
 #endif
@@ -59,6 +59,7 @@ CMFCChatServerDlg::CMFCChatServerDlg(CWnd* pParent /*=nullptr*/)
 void CMFCChatServerDlg::DoDataExchange(CDataExchange* pDX)
 {
 	CDialogEx::DoDataExchange(pDX);
+	DDX_Control(pDX, IDC_MSG_LIST, m_list);
 }
 
 BEGIN_MESSAGE_MAP(CMFCChatServerDlg, CDialogEx)
@@ -99,7 +100,7 @@ BOOL CMFCChatServerDlg::OnInitDialog()
 	//  执行此操作
 	SetIcon(m_hIcon, TRUE);			// 设置大图标
 	SetIcon(m_hIcon, FALSE);		// 设置小图标
-
+	GetDlgItem(IDC_PORT_EDIT)->SetWindowText(_T("5000"));
 	// TODO: 在此添加额外的初始化代码
 
 	return TRUE;  // 除非将焦点设置到控件，否则返回 TRUE
@@ -159,5 +160,40 @@ HCURSOR CMFCChatServerDlg::OnQueryDragIcon()
 void CMFCChatServerDlg::OnBnClickedStartBtn()
 {
 	// TODO: 在此添加控件通知处理程序代码
-	TRACE("#####");
+	TRACE("##OnBClickedStarBtn");
+	CString strPort;
+	//从控件里面获取内容
+	GetDlgItem(IDC_PORT_EDIT)->GetWindowText(strPort);
+
+
+	//CString转char *
+	USES_CONVERSION;
+	LPCSTR szPort = (LPCSTR)T2A(strPort);
+
+	TRACE("szPort = %s", szPort);
+	//
+	int iPort = _ttoi(strPort);
+	//创建服务器Socket的对象
+	m_server = new CServerSocket;
+
+	//创建一个socket
+	if (!m_server->Create(iPort))
+	{
+		TRACE("m_server Create errorCode =%d", GetLastError());
+		return;
+	}
+	
+
+	if (!m_server->Listen())
+	{
+		TRACE("m_server Listen errorCode =%d", GetLastError());
+		return;
+	}
+
+	CString str;
+	str=m_tm.Format("%X ");
+	str += _T("建立服务");
+	m_list.AddString(str);
+	UpdateData(FALSE);
+
 }

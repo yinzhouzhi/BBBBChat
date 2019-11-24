@@ -7,6 +7,7 @@
 #include "MFCChatClient.h"
 #include "MFCChatClientDlg.h"
 #include "afxdialogex.h"
+#include"CMySocket.h"
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -59,6 +60,8 @@ CMFCChatClientDlg::CMFCChatClientDlg(CWnd* pParent /*=nullptr*/)
 void CMFCChatClientDlg::DoDataExchange(CDataExchange* pDX)
 {
 	CDialogEx::DoDataExchange(pDX);
+	DDX_Control(pDX, IDC_LIST1, m_list);
+	DDX_Control(pDX, IDC_SENDMSG_EDIT, m_input);
 }
 
 BEGIN_MESSAGE_MAP(CMFCChatClientDlg, CDialogEx)
@@ -100,7 +103,8 @@ BOOL CMFCChatClientDlg::OnInitDialog()
 	//  执行此操作
 	SetIcon(m_hIcon, TRUE);			// 设置大图标
 	SetIcon(m_hIcon, FALSE);		// 设置小图标
-
+	GetDlgItem(IDC_PORT_EDIT)->SetWindowText(_T("5000"));
+	GetDlgItem(IDC_IPADDRESS1)->SetWindowText(_T("127.0.0.1"));
 	// TODO: 在此添加额外的初始化代码
 
 	return TRUE;  // 除非将焦点设置到控件，否则返回 TRUE
@@ -160,21 +164,42 @@ HCURSOR CMFCChatClientDlg::OnQueryDragIcon()
 void CMFCChatClientDlg::OnBnClickedConnetBtn()
 {
 	// TODO: 在此添加控件通知处理程序代码
+	//把IP和端口拿到
 	TRACE("##OnBClickedConnectBtn");
 	CString strPort, strIP;
 	//从控件里面获取内容
 	GetDlgItem(IDC_PORT_EDIT)->GetWindowText(strPort);
 	GetDlgItem(IDC_IPADDRESS1)->GetWindowText(strIP);
-
+	
 	//CString转char *
 	USES_CONVERSION;
-	LPCSTR szPort = (LPCSTR)T2A(strPort);
-	LPCSTR sziP = (LPCSTR)T2A(strIP);
-	TRACE("strPort = %s,strIP = %s", strPort, strIP);
+	LPCSTR szPort = (LPCSTR)W2A(strPort);
+	LPCSTR sziP = (LPCSTR)W2A(strIP);
+	TRACE("strPort = %s,strIP = %s", szPort, sziP);
+	
+	//字符串转化为数字
+	int iPort = _ttoi(strPort);
+
+	//创建一个socket对象
+	m_client = new CMySocket;
+
+	//创建套接字
+	if (!m_client->Create()) {
+		TRACE("m_client Create errot %d", GetLastError);
+		return;
+	}
+	else {
+		TRACE("m_client Create Success");
+	}
+
+	//链接
+	m_client->Connect(strIP, iPort);
+	
 }
 //标记mark
 
 void CMFCChatClientDlg::OnBnClickedDisconnectBtn()
 {
 	// TODO: 在此添加控件通知处理程序代码
+	TRACE("##OnBClickedConnectBtn");
 }
