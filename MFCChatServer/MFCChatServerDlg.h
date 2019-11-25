@@ -36,6 +36,8 @@ public:
 	CListBox m_list;
 	CChatSocket* m_chat;
 	CServerSocket *m_server;
-	CTime m_tm;
+//	CTime m_tm;之前代码的时间变量
 
+	afx_msg void OnBnClickedSendBtn();
+	CString CMFCChatServerDlg::CatShowString(CString strInfo, CString strMsg);
 };

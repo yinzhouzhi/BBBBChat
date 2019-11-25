@@ -67,6 +67,7 @@ BEGIN_MESSAGE_MAP(CMFCChatServerDlg, CDialogEx)
 	ON_WM_PAINT()
 	ON_WM_QUERYDRAGICON()
 	ON_BN_CLICKED(IDC_START_BTN, &CMFCChatServerDlg::OnBnClickedStartBtn)
+	ON_BN_CLICKED(IDC_SEND_BTN, &CMFCChatServerDlg::OnBnClickedSendBtn)
 END_MESSAGE_MAP()
 
 
@@ -155,7 +156,20 @@ HCURSOR CMFCChatServerDlg::OnQueryDragIcon()
 	return static_cast<HCURSOR>(m_hIcon);
 }
 
+//strcat
+CString CMFCChatServerDlg::CatShowString(CString strInfo, CString strMsg) {
 
+	//时间+信息(昵称)+消息
+	CString strTime;
+	CTime tmNow;
+	tmNow = CTime::GetCurrentTime();
+	strTime = tmNow.Format("%X ");
+	CString strShow;
+	strShow = strTime + strShow;
+	strShow += strInfo;
+	strShow += strMsg;
+	return strShow;
+}
 
 void CMFCChatServerDlg::OnBnClickedStartBtn()
 {
@@ -183,17 +197,62 @@ void CMFCChatServerDlg::OnBnClickedStartBtn()
 		return;
 	}
 	
+	
 
 	if (!m_server->Listen())
 	{
 		TRACE("m_server Listen errorCode =%d", GetLastError());
 		return;
 	}
-
+#if 0
 	CString str;
-	str=m_tm.Format("%X ");
-	str += _T("建立服务");
+	str = m_tm.Format("%X ");
+	str += _T("服务器启动...");
 	m_list.AddString(str);
+#endif
+	CString strShow;
+	CString strInfo = _T("服务器启动...");
+	CString strMsg = _T("");
+	strShow = CatShowString(strInfo, strMsg);
+	m_list.AddString(strShow);
+	/*false:是把数据搞下来,true:是把数据放上去*/
+	UpdateData(FALSE);
+	
+
+}
+
+
+void CMFCChatServerDlg::OnBnClickedSendBtn()
+{
+	// TODO: 在此添加控件通知处理程序代码
+	CString strTmpMsg;
+	GetDlgItem(IDC_SEND_EDIT)->GetWindowTextW(strTmpMsg);
+
+	USES_CONVERSION;
+	char* szSendBuf = T2A(strTmpMsg);
+	//2 发送给客户端
+	//调用该成员函数发送有关已连接的套接字的数据。
+	m_chat->Send(szSendBuf, SEND_MAX_BUF, 0);
+
+	//3 显示到列表框
+#if 0
+	CString strShow = _T("发送服务端: ");
+	CString strTime;
+	m_tm = CTime::GetCurrentTime();
+	strTime = m_tm.Format("%X ");
+
+	//格式大概:2019-11-17 发送服务端: 内容
+	strShow = strTime + strShow;
+	strShow += strTmpMsg;
+	m_list.AddString(strShow);
+#endif
+	CString strShow;
+	CString strInfo = _T("发送服务端: ");
+	CString strMsg = _T("");
+	strShow =CatShowString(strInfo, strTmpMsg);
+	m_list.AddString(strShow);
 	UpdateData(FALSE);
 
+	//清空编辑框
+	GetDlgItem(IDC_SEND_EDIT)->SetWindowTextW(_T(""));
 }

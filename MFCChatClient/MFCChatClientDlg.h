@@ -36,8 +36,9 @@ public:
 	afx_msg void OnBnClickedDisconnectBtn();
 	CMySocket* m_client;
 	CListBox m_list;
-	CTime m_tm;
+	//CTime m_tm;时间的成员变量
 	CEdit m_input;
 	
 	afx_msg void OnBnClickedSendBtn();
+	CString CMFCChatClientDlg::CatShowString(CString strInfo, CString strMsg);
 };

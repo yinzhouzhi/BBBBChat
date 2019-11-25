@@ -1,5 +1,6 @@
 #pragma once
 #include<afxsock.h>
+#include"CMySocket.h"
 class CMySocket :
 	public CAsyncSocket
 {
